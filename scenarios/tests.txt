@@ -1,0 +1,14 @@
+Generate a Playwright test for the following scenario:
+
+Test scenario: User sign out
+1. Navigate to the /admin url.
+2. Click on the “Log out” button/link.
+3. Verify the logout button is no longer displayed on the page.
+4. Close the browser.
+
+Test scenario: Filter schools by name
+1. Navigate to the /admin url.
+2. Click on schools.
+3. Complete name input field with the value "test".
+4. Click on Filter.
+5. Assert at least 1 result is displayed.
