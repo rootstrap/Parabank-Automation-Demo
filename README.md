@@ -20,7 +20,6 @@ MCP is an open protocol that standardizes how applications provide context to LL
 
 (*) An LLM (Large Language Model) is an artificial intelligence model trained on large amounts of text to understand and generate human language. It uses statistical patterns and language structures to answer questions, write text, or carry on conversations. Models like GPT-4 are examples of advanced LLMs.
 
-
 ## What's Playwright MCP?
 
 Playwright MCP refers to a Model Context Protocol (MCP) server that specifically provides browser automation capabilities using Playwright. It enables large language models (LLMs) and AI agents to interact with web pages, perform actions like navigating, filling forms, and taking snapshots, all through a standardized protocol, often for automated testing or web scraping.
