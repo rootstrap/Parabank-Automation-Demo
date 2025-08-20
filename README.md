@@ -1,5 +1,6 @@
 # playwright-mcp-demo
 
+
 ## 📘 Introduction
 
 This document summarizes our experience using Playwright MCP (Model Context Protocol) — an AI-native extension of Playwright that allows large language models (LLMs) to interact with web applications through structured, accessible snapshots instead of visual interfaces.
