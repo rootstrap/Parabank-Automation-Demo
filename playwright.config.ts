@@ -8,7 +8,7 @@ export default defineConfig({
     {
       name: "sandbox",
       use: {
-        baseURL: process.env.BASE_URL || "https://tools.sandbox.bwtest.net",
+        baseURL: process.env.BASE_URL || "https://tienda1.qa.e-lead-dev.com/",
         storageState: "./.auth/user.json",
         headless: false,
         channel: "chrome",
