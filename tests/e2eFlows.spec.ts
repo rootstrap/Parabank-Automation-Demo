@@ -3,34 +3,42 @@ import { HomePage } from "../pages/homePage";
 import { LoginPage } from "../pages/loginPage";
 import { SignUpPage } from "../pages/signUpPage";
 import { HeaderFooter } from "../pages/headerFooter";
-
-const uniqueEmail = `test${Date.now()}@example.com`;
-const strongPassword = "ValidPa$$w0rd!";
+import { TestDataFactory } from "../src/utils/test-data-factory";
+import { UserRegistrationData } from "../src/types/test-data";
 
 test.describe("Core storefront flows", () => {
-	test("signup, login, explore homepage, explore header/footer links", async ({
+	test("should complete full user journey: signup, login, explore homepage, and header/footer links", async ({
 		page,
 		browser,
 	}) => {
+		// Arrange - Setup test data and page objects
 		const home = new HomePage(page);
 		const signup = new SignUpPage(page);
 		const headerFooter = new HeaderFooter(page);
+		const userData: UserRegistrationData =
+			TestDataFactory.generateUserRegistrationData();
 
-		// Explore homepage (with welcome popup handling)
+		// Act - Perform the user journey
+		// Step 1: Explore homepage and handle welcome popup
 		await home.goto();
 		await home.maybeValidateAndCloseWelcomePopup();
 		await home.expectHomeLoaded();
 
-		// Sign up a new user
+		// Step 2: Sign up a new user
 		await signup.goto();
-		await signup.register("Test", "User", uniqueEmail, strongPassword);
+		await signup.register(
+			userData.firstName,
+			userData.lastName,
+			userData.email,
+			userData.password
+		);
 
-		// Verify homepage and explore header/footer links
+		// Step 3: Verify homepage and explore header/footer links
 		await headerFooter.openHome();
 		await home.expectHomeLoaded();
 		await headerFooter.exploreFooter();
 
-		// Login flow in a fresh guest context
+		// Step 4: Login flow in a fresh guest context
 		const context = await browser.newContext();
 		const page2 = await context.newPage();
 		const home2 = new HomePage(page2);
@@ -40,10 +48,11 @@ test.describe("Core storefront flows", () => {
 		await home2.goto();
 		await home2.maybeValidateAndCloseWelcomePopup();
 		await home2.clickLoginHeader();
-		await login2.login(uniqueEmail, strongPassword);
+		await login2.login(userData.email, userData.password);
 		await headerFooter2.openHome();
 		await home2.expectHomeLoaded();
 
+		// Cleanup
 		await context.close();
 	});
 });

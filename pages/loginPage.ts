@@ -43,7 +43,11 @@ export class LoginPage {
 		await this.loginButton.click();
 	}
 
+	/**
+	 * Expects error message to be visible with proper timeout
+	 * @throws {Error} When error message is not found within timeout
+	 */
 	async expectErrorVisible(): Promise<void> {
-		await expect(this.errorMessage).toBeVisible();
+		await expect(this.errorMessage).toBeVisible({ timeout: TIMEOUTS.MEDIUM });
 	}
 }
