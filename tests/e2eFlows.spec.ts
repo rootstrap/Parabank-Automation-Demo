@@ -8,7 +8,10 @@ const uniqueEmail = `test${Date.now()}@example.com`;
 const strongPassword = "ValidPa$$w0rd!";
 
 test.describe("Core storefront flows", () => {
-	test("signup, login, explore homepage, explore header/footer links", async ({ page, browser }) => {
+	test("signup, login, explore homepage, explore header/footer links", async ({
+		page,
+		browser,
+	}) => {
 		const home = new HomePage(page);
 		const signup = new SignUpPage(page);
 		const headerFooter = new HeaderFooter(page);

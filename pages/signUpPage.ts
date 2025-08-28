@@ -16,8 +16,13 @@ export class SignUpPage {
 		this.firstNameInput = page.getByRole("textbox", { name: "First Name" });
 		this.lastNameInput = page.getByRole("textbox", { name: "Last Name" });
 		this.emailInput = page.getByRole("textbox", { name: "Email" });
-		this.passwordInput = page.getByRole("textbox", { name: "Password", exact: true });
-		this.confirmPasswordInput = page.getByRole("textbox", { name: "Confirm Password" });
+		this.passwordInput = page.getByRole("textbox", {
+			name: "Password",
+			exact: true,
+		});
+		this.confirmPasswordInput = page.getByRole("textbox", {
+			name: "Confirm Password",
+		});
 		this.registerButton = page.getByRole("button", { name: "Register" });
 	}
 
@@ -29,7 +34,12 @@ export class SignUpPage {
 		await this.signUpTab.click();
 	}
 
-	async register(firstName: string, lastName: string, email: string, password: string): Promise<void> {
+	async register(
+		firstName: string,
+		lastName: string,
+		email: string,
+		password: string
+	): Promise<void> {
 		await this.openTab();
 		await expect(this.firstNameInput).toBeVisible();
 		await this.firstNameInput.fill(firstName);

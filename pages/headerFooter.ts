@@ -12,9 +12,13 @@ export class HeaderFooter {
 
 	constructor(page: Page) {
 		this.page = page;
-		this.brandLink = page.getByRole("link", { name: "Company brand clickable to go back to homepage" });
+		this.brandLink = page.getByRole("link", {
+			name: "Company brand clickable to go back to homepage",
+		});
 		this.cartLink = page.getByRole("link", { name: /cart/i });
-		this.userMenuButton = page.getByRole("button", { name: /Test User|Order History/ });
+		this.userMenuButton = page.getByRole("button", {
+			name: /Test User|Order History/,
+		});
 		this.orderHistoryLink = page.getByRole("link", { name: "Order History" });
 		this.contactUsFooter = page.getByRole("link", { name: "Contact us" });
 		this.faqsFooter = page.getByRole("link", { name: "FAQs" });
@@ -47,6 +51,9 @@ export class HeaderFooter {
 
 	async logout(): Promise<void> {
 		await this.userMenuButton.click();
-		await this.page.locator('p[role="button"]').filter({ hasText: 'Log Out' }).click();
+		await this.page
+			.locator('p[role="button"]')
+			.filter({ hasText: "Log Out" })
+			.click();
 	}
 }

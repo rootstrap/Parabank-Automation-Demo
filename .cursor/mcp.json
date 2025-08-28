@@ -1,11 +1,11 @@
 {
-  "mcpServers": {
-    "playwright": {
-      "command": "npx @playwright/mcp@latest",
-      "env": {},
-      "args": [
-        "--config=/Users/samorin/Desktop/playwright-mcp-demo/playwright-mcp-config.json"
-      ]
-    }
-  }
+	"mcpServers": {
+		"playwright": {
+			"command": "npx @playwright/mcp@latest",
+			"env": {},
+			"args": [
+				"--config=/Users/samorin/Desktop/playwright-mcp-demo/playwright-mcp-config.json"
+			]
+		}
+	}
 }

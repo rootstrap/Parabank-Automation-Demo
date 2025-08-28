@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { Page, Locator } from "@playwright/test";
 
 export class CartPage {
 	readonly page: Page;
@@ -7,8 +7,12 @@ export class CartPage {
 
 	constructor(page: Page) {
 		this.page = page;
-		this.emptyHeading = page.getByRole("heading", { name: "Your Shopping Cart is empty" });
-		this.recommendedFirstProduct = page.getByRole("link", { name: /Devon 7 Jones/ }).first();
+		this.emptyHeading = page.getByRole("heading", {
+			name: "Your Shopping Cart is empty",
+		});
+		this.recommendedFirstProduct = page
+			.getByRole("link", { name: /Devon 7 Jones/ })
+			.first();
 	}
 
 	async goto(): Promise<void> {

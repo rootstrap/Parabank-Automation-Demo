@@ -18,7 +18,7 @@ MCP is an open protocol that standardizes how applications provide context to LL
 
 ![image](https://github.com/user-attachments/assets/958c8084-efb1-43e7-884d-934029b34e8c)
 
-(*) An LLM (Large Language Model) is an artificial intelligence model trained on large amounts of text to understand and generate human language. It uses statistical patterns and language structures to answer questions, write text, or carry on conversations. Models like GPT-4 are examples of advanced LLMs.
+(\*) An LLM (Large Language Model) is an artificial intelligence model trained on large amounts of text to understand and generate human language. It uses statistical patterns and language structures to answer questions, write text, or carry on conversations. Models like GPT-4 are examples of advanced LLMs.
 
 ## What's Playwright MCP?
 
