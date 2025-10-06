@@ -9,7 +9,7 @@ export default defineConfig({
 			name: "sandbox",
 			use: {
 				baseURL:
-					process.env["BASE_URL"] || "https://tienda1.qa.e-lead-dev.com/",
+					process.env["BASE_URL"] || "https://tienda1.qa.eleaddev.com/",
 				storageState: "./.auth/user.json",
 				headless: false,
 				channel: "chrome",
