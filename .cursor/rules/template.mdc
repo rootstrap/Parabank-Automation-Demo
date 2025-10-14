@@ -9,3 +9,4 @@ alwaysApply: false
 - Only after all steps are completed, emit a Playwright TypeScript test that uses @playwright/test based on message history
 - Save generated test file in a tests directory.
 - Execute the test file and iterate until the test passes
+- Once a test fails, loook for error messages and flag them

@@ -1,14 +1,13 @@
-Generate a Playwright test for the following scenario:
+Generate Playwright tests for the following scenarios:
 
-Test scenario: User sign out
-1. Navigate to the /admin url.
-2. Click on the “Log out” button/link.
-3. Verify the logout button is no longer displayed on the page.
-4. Close the browser.
+Test scenario 1: User sign up
+1. Complete registration using a unique username
+2. Verify user is signed up when seeing message "Your account was created successfully. You are now logged in."
 
-Test scenario: Filter schools by name
-1. Navigate to the /admin url.
-2. Click on schools.
-3. Complete name input field with the value "test".
-4. Click on Filter.
-5. Assert at least 1 result is displayed.
+Test scenario 2: logout
+1. Perform a log out from the user created in scenario 1
+2. Verify account is logged out
+
+Test scenario 3: login
+1. Perform a log in with user created in scenario 1
+2. Verify account is logged in

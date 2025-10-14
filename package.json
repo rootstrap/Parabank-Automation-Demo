@@ -9,6 +9,8 @@
 		"test:debug": "playwright test --debug",
 		"test:report": "playwright test --reporter=html",
 		"test:ui": "playwright test --ui",
+		"test:e2e": "playwright test tests/registration/registration-e2e.test.ts --headed",
+		"test:e2e-debug": "playwright test tests/registration/registration-e2e.test.ts --debug",
 		"lint": "eslint . --ext .ts",
 		"lint:fix": "eslint . --ext .ts --fix",
 		"format": "prettier --write .",

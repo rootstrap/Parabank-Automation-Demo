@@ -4,13 +4,13 @@ export default defineConfig({
 	testDir: "./tests",
 	timeout: 30 * 1000,
 	retries: 0,
+	workers: 1, // Run tests sequentially to maintain single browser session
 	projects: [
 		{
 			name: "sandbox",
 			use: {
 				baseURL:
 					process.env["BASE_URL"] || "https://parabank.parasoft.com/parabank/index.htm",
-				storageState: "./.auth/user.json",
 				headless: false,
 				channel: "chrome",
 				viewport: { width: 1280, height: 720 },
