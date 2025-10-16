@@ -11,3 +11,7 @@ Test scenario 2: logout
 Test scenario 3: login
 1. Perform a log in with user created in scenario 1
 2. Verify account is logged in
+
+Test scenario 4: open new account
+1. Click "Open New Account" from Account Services and create a new account for SAVINGS
+2. Verify the new account is created by searching "Congratulations, your account is now open." message

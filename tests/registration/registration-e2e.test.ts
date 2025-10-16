@@ -103,12 +103,86 @@ test.describe('Registration Scenarios E2E', () => {
 		console.log('✅ Scenario 3 Complete: User successfully logged in');
 
 		// ========================================
-		// FINAL VERIFICATION
+		// FINAL VERIFICATION FOR SCENARIOS 1-3
 		// ========================================
-		console.log('🎉 Complete Registration Scenarios E2E Flow Successfully Executed!');
+		console.log('🎉 Complete Registration Scenarios (1-3) Successfully Executed!');
 		
 		// Additional verification that user is properly logged in
 		await expect(page.locator('text=Account Services')).toBeVisible();
 		await expect(page.locator('text=Log Out')).toBeVisible();
+	});
+
+	test('Complete journey with Account Services: Signup → Logout → Login → Open New Account', async ({ 
+		homePage, 
+		registerPage, 
+		page 
+	}) => {
+		// ========================================
+		// SCENARIOS 1-3 (Same as above)
+		// ========================================
+		console.log('🚀 Running All 4 Scenarios in One Session');
+		
+		// SCENARIO 1: USER SIGN UP
+		await homePage.goto();
+		await homePage.goToRegister();
+		await registerPage.register(testUser);
+		await waitForRegistrationSuccess(page);
+		console.log('✅ Scenario 1 Complete');
+
+		// SCENARIO 2: USER LOGOUT
+		const logoutLink = page.getByRole('link', { name: /logout/i });
+		const logoutButton = page.getByRole('button', { name: /logout/i });
+		
+		if (await logoutLink.isVisible()) {
+			await logoutLink.click();
+		} else if (await logoutButton.isVisible()) {
+			await logoutButton.click();
+		} else {
+			await page.context().clearCookies();
+			await page.goto('/');
+		}
+		
+		await waitForLogoutSuccess(page);
+		console.log('✅ Scenario 2 Complete');
+
+		// SCENARIO 3: USER LOGIN
+		await homePage.goto();
+		await homePage.login(testUser.username, testUser.password);
+		await waitForLoginSuccess(page);
+		console.log('✅ Scenario 3 Complete');
+
+		// ========================================
+		// SCENARIO 4: OPEN NEW ACCOUNT
+		// ========================================
+		console.log('🚀 Starting Scenario 4: Open New Account');
+		
+		await expect(page.locator('text=Account Services')).toBeVisible();
+
+		const openNewAccountLink = page.getByRole('link', { name: /open new account/i });
+		await openNewAccountLink.click();
+		
+		await expect(page).toHaveURL(/openaccount\.htm/);
+		await expect(page.getByRole('heading', { name: 'Open New Account' })).toBeVisible();
+
+		const accountTypeDropdown = page.locator('#type');
+		await accountTypeDropdown.selectOption('SAVINGS');
+		
+		await page.waitForTimeout(1000);
+		
+		const openAccountButton = page.locator('input[value="Open New Account"]');
+		await openAccountButton.click();
+		
+		await page.waitForLoadState('networkidle', { timeout: 15000 });
+
+		const congratulationsMessage = page.locator('p:has-text("Congratulations, your account is now open.")');
+		await expect(congratulationsMessage).toBeVisible({ timeout: 10000 });
+		console.log('✅ Scenario 4 Complete: New SAVINGS account successfully created');
+
+		const accountIdHeading = page.locator('#newAccountId');
+		await expect(accountIdHeading).toBeVisible();
+		const accountId = await accountIdHeading.textContent();
+		console.log(`📝 New Account ID: ${accountId}`);
+		
+		console.log('🎉 All 4 Scenarios Successfully Executed in One Browser Session!');
 	});
 });
