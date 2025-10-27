@@ -16,7 +16,18 @@ export interface ParaBankTestContext {
 }
 
 /**
- * Custom test fixture that provides ParaBank page objects
+ * Custom test fixture that provides ParaBank page objects.
+ * 
+ * Usage in tests:
+ * ```typescript
+ * import { test, expect } from '../../fixtures/parabank-fixtures';
+ * 
+ * test('my test', async ({ homePage, registerPage, page }) => {
+ *   // homePage and registerPage are automatically available
+ *   await homePage.goto();
+ *   await registerPage.register(userCredentials);
+ * });
+ * ```
  */
 export const test = base.extend<ParaBankTestContext>({
 	homePage: async ({ page }, use) => {
@@ -61,6 +72,66 @@ export const test = base.extend<ParaBankTestContext>({
 export function createTestUser(): UserCredentials {
 	return generateUniqueUserCredentials('testuser');
 }
+
+/**
+ * Fixture for a registered user - automatically creates and logs in a user
+ */
+export interface RegisteredUser {
+	userCredentials: UserCredentials;
+	homePage: HomePage;
+	registerPage: RegisterPage;
+}
+
+export const registeredUser = test.extend<ParaBankTestContext & { registeredUser: RegisteredUser }>({
+	registeredUser: async ({ homePage, registerPage }, use) => {
+		// Generate unique credentials for this test
+		const userCredentials = generateUniqueUserCredentials('testuser');
+		
+		// Register the user
+		await homePage.goto();
+		await homePage.goToRegister();
+		await registerPage.register(userCredentials);
+		await waitForRegistrationSuccess(registerPage.page);
+		
+		// Provide the registered user context
+		await use({
+			userCredentials,
+			homePage,
+			registerPage
+		});
+	}
+});
+
+/**
+ * Fixture for a logged in user - creates a user, registers, and logs them in
+ */
+export interface LoggedInUser {
+	userCredentials: UserCredentials;
+	homePage: HomePage;
+	registerPage: RegisterPage;
+}
+
+export const loggedInUser = test.extend<ParaBankTestContext & { loggedInUser: LoggedInUser }>({
+	loggedInUser: async ({ homePage, registerPage }, use) => {
+		// Generate unique credentials for this test
+		const userCredentials = generateUniqueUserCredentials('testuser');
+		
+		// Register the user
+		await homePage.goto();
+		await homePage.goToRegister();
+		await registerPage.register(userCredentials);
+		await waitForRegistrationSuccess(registerPage.page);
+		
+		// User is automatically logged in after registration
+		
+		// Provide the logged in user context
+		await use({
+			userCredentials,
+			homePage,
+			registerPage
+		});
+	}
+});
 
 /**
  * Helper function to wait for successful registration message

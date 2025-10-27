@@ -1,11 +1,4 @@
 /**
- * Registration Test Suite Index
- * 
- * This file exports all registration-related test files for easy importing
- * and test discovery.
+ * Export all registration test modules
  */
-
-// Test files
-export * from './user-signup.test';
-export * from './user-logout.test';
-export * from './user-login.test';
+export * from './registration-e2e.test';

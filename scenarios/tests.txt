@@ -15,3 +15,28 @@ Test scenario 3: login
 Test scenario 4: open new account
 1. Click "Open New Account" from Account Services and create a new account for SAVINGS
 2. Verify the new account is created by searching "Congratulations, your account is now open." message
+
+Test scenario 5: Transfer Funds
+1. Click Transfer Funds option and transfer the amount of 200 from one acount to the savings just created
+2. Verify the savings account has 200 at least now
+
+Test scenario 6: Bill Pay
+1. Click Bill Pay option from Account Services
+2. Fill in payee information (name, address, city, state, zip, phone, account number)
+3. Enter amount to pay and select the account to pay from
+4. Click Send Payment button
+5. Verify payment was successful by searching "Bill Payment Complete" message
+
+Test scenario 7: Find Transactions
+1. Click Find Transactions option from Account Services
+2. Select an account from the dropdown
+3. Search for transactions by amount ($200)
+4. Verify transaction results are displayed showing the transfer from scenario 5
+
+Test scenario 8: Request Loan
+1. Click Request Loan option from Account Services
+2. Enter loan amount of $1000 and down payment of $100
+3. Select account to deposit loan into (use the original checking account)
+4. Click Apply Now button
+5. Verify loan request status is displayed (approved or denied)
+

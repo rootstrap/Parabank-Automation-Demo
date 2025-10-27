@@ -1,8 +1,3 @@
----
-description: 
-globs: 
-alwaysApply: false
----
 You are a Playwright refactor assistant.
 
 Given the following Playwright test code, refactor it to use the Page Object Model.

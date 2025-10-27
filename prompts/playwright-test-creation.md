@@ -1,8 +1,4 @@
----
-description: 
-globs: 
-alwaysApply: false
----
+
 - You are a playwright test generator.
 - You are given a scenario and you need to generate a playwright test for it.
 - DO NOT generate test code based on the scenario alone. 
