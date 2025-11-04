@@ -79,6 +79,154 @@ Follow these steps to get started with Playwright in this project:
 - https://www.youtube.com/watch?v=IixdI2bTR1g
 - https://www.youtube.com/watch?v=pwbgvbJP8KM
 
+---
+
+## 🏗️ Test Architecture: Custom Fixtures
+
+This project uses **Playwright's custom fixtures** system to provide a clean, maintainable testing architecture with dependency injection.
+
+### What Are Fixtures?
+
+Fixtures are **shared setup and teardown** logic that provides dependencies to your tests. They eliminate boilerplate code and ensure consistency across your test suite.
+
+### Why Use Fixtures?
+
+✅ **Dependency Injection**: Page objects are automatically provided to tests
+✅ **No Boilerplate**: No need to instantiate `new HomePage(page)` in every test
+✅ **Automatic Cleanup**: Fixtures handle teardown automatically
+✅ **Type Safety**: Full TypeScript support with proper typing
+✅ **Test Isolation**: Each test gets fresh instances
+✅ **Reusability**: Share setup logic across multiple tests
+
+### How Our Fixtures Work
+
+#### 1. Basic Fixture Usage
+
+All tests import from our custom fixtures instead of `@playwright/test`:
+
+```typescript
+// ✅ Correct: Import from fixtures
+import { test, expect, createTestUser } from '../../fixtures/parabank-fixtures';
+
+// ❌ Wrong: Import directly from @playwright/test
+import { test, expect } from '@playwright/test';
+```
+
+#### 2. Page Object Injection
+
+Page objects are automatically injected as parameters:
+
+```typescript
+test('Registration flow', async ({ 
+    homePage,      // ← Automatically created and injected
+    registerPage,  // ← Automatically created and injected
+    page           // ← Standard Playwright page
+}) => {
+    // Use page objects directly - no manual setup!
+    await homePage.goto();
+    await registerPage.register(testUser);
+});
+```
+
+#### 3. Advanced Fixtures: Pre-Authenticated Users
+
+For tests requiring a logged-in user, use the `loggedInUser` fixture:
+
+```typescript
+import { loggedInUser } from '../../fixtures/parabank-fixtures';
+
+// Extend the loggedInUser fixture
+const testWithLoggedInUser = loggedInUser.extend({});
+
+testWithLoggedInUser('Bill Pay', async ({ 
+    page,
+    loggedInUser // ← User is already registered AND logged in
+}) => {
+    // Start testing immediately - no setup needed!
+    console.log(`Testing with user: ${loggedInUser.userCredentials.username}`);
+});
+```
+
+### Available Fixtures
+
+#### Basic Page Object Fixtures
+- `homePage`: HomePage instance
+- `registerPage`: RegisterPage instance
+- `aboutPage`: AboutPage instance
+- `servicesPage`: ServicesPage instance
+- `contactPage`: ContactPage instance
+- `lookupPage`: LookupPage instance
+- `errorPage`: ErrorPage instance
+- `billPayPage`: BillPayPage instance
+
+#### Advanced Fixtures
+- `loggedInUser`: Extends basic fixtures + creates authenticated user
+- `registeredUser`: Extends basic fixtures + creates registered user
+
+#### Helper Functions
+- `createTestUser()`: Generate unique test credentials
+- `waitForRegistrationSuccess(page)`: Wait for registration confirmation
+- `waitForLoginSuccess(page)`: Wait for login completion
+- `waitForLogoutSuccess(page)`: Wait for logout completion
+- `cleanupTestData(page)`: Clear cookies and storage
+
+### Complete Example
+
+```typescript
+import { test, expect, createTestUser, loggedInUser } from '../../fixtures/parabank-fixtures';
+
+// Basic fixture test
+test('User can navigate to services page', async ({ 
+    homePage, 
+    servicesPage, 
+    page 
+}) => {
+    await homePage.goto();
+    await homePage.goToServices();
+    await expect(page).toHaveURL(/services\.htm/);
+    await expect(servicesPage.pageTitle).toBeVisible();
+});
+
+// Advanced fixture test (pre-authenticated)
+const testWithLoggedInUser = loggedInUser.extend({});
+
+testWithLoggedInUser('User can pay bills', async ({ 
+    page, 
+    loggedInUser 
+}) => {
+    // User is already logged in, start testing!
+    console.log(`Testing with: ${loggedInUser.userCredentials.username}`);
+    
+    // Navigate and perform bill payment...
+});
+```
+
+### Project Structure
+
+```
+eLead-Automation-MCP/
+├── fixtures/
+│   └── parabank-fixtures.ts      # ← Custom fixtures definition
+├── pages/
+│   └── parabank/                  # ← Page Object Models
+│       ├── homePage.ts
+│       ├── registerPage.ts
+│       └── ...
+├── tests/
+│   └── registration/
+│       ├── registration-e2e.test.ts  # ← Tests using fixtures
+│       └── README.md
+└── README.md
+```
+
+### Learn More
+
+For detailed documentation on fixtures, see:
+- [`tests/registration/README.md`](tests/registration/README.md) - Comprehensive fixture guide
+- [`fixtures/parabank-fixtures.ts`](fixtures/parabank-fixtures.ts) - Fixture implementation
+
+---
+
 ### 7. 🧠 Lessons Learned – Playwright MCP
 
 | ✅ Pros                                                                          | ⚠️ Cons                                                                                                   |

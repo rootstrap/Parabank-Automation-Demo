@@ -1,6 +1,6 @@
 import { Page, Locator } from "@playwright/test";
 
-export class HomePage {
+export class BillPayPage {
 	readonly page: Page;
 	
 	// Header elements
@@ -26,21 +26,23 @@ export class HomePage {
 	readonly forgotLoginInfoLink: Locator;
 	readonly registerLink: Locator;
 	
-	// ATM Services section
-	readonly withdrawFundsLink: Locator;
-	readonly transferFundsLink: Locator;
-	readonly checkBalancesLink: Locator;
-	readonly makeDepositsLink: Locator;
+	// Bill Payment form elements
+	readonly pageTitle: Locator;
+	readonly payeeNameField: Locator;
+	readonly payeeAddressField: Locator;
+	readonly payeeCityField: Locator;
+	readonly payeeStateField: Locator;
+	readonly payeeZipCodeField: Locator;
+	readonly payeePhoneField: Locator;
+	readonly payeeAccountNumberField: Locator;
+	readonly verifyAccountField: Locator;
+	readonly amountField: Locator;
+	readonly fromAccountDropdown: Locator;
+	readonly sendPaymentButton: Locator;
 	
-	// Online Services section
-	readonly billPayLink: Locator;
-	readonly accountHistoryLink: Locator;
-	readonly transferFundsOnlineLink: Locator;
-	
-	// Latest News section
-	readonly parabankReopenedLink: Locator;
-	readonly onlineBillPayNewsLink: Locator;
-	readonly onlineAccountTransfersNewsLink: Locator;
+	// Success page elements
+	readonly paymentCompleteHeading: Locator;
+	readonly paymentAmount: Locator;
 	
 	// Footer elements
 	readonly footerHomeLink: Locator;
@@ -79,21 +81,23 @@ export class HomePage {
 		this.forgotLoginInfoLink = page.getByRole("link", { name: "Forgot login info?" });
 		this.registerLink = page.getByRole("link", { name: "Register" });
 		
-		// ATM Services section
-		this.withdrawFundsLink = page.getByRole("link", { name: "Withdraw Funds" });
-		this.transferFundsLink = page.getByRole("link", { name: "Transfer Funds" });
-		this.checkBalancesLink = page.getByRole("link", { name: "Check Balances" });
-		this.makeDepositsLink = page.getByRole("link", { name: "Make Deposits" });
+		// Bill Payment form elements
+		this.pageTitle = page.getByRole("heading", { name: "Bill Payment Service" });
+		this.payeeNameField = page.locator('input[name="payee.name"]');
+		this.payeeAddressField = page.locator('input[name="payee.address.street"]');
+		this.payeeCityField = page.locator('input[name="payee.address.city"]');
+		this.payeeStateField = page.locator('input[name="payee.address.state"]');
+		this.payeeZipCodeField = page.locator('input[name="payee.address.zipCode"]');
+		this.payeePhoneField = page.locator('input[name="payee.phoneNumber"]');
+		this.payeeAccountNumberField = page.locator('input[name="payee.accountNumber"]');
+		this.verifyAccountField = page.locator('input[name="verifyAccount"]');
+		this.amountField = page.locator('input[name="amount"]');
+		this.fromAccountDropdown = page.locator('#fromAccountId');
+		this.sendPaymentButton = page.locator('input[value="Send Payment"]');
 		
-			// Online Services section (in left panel - Account Services)
-	this.billPayLink = page.locator('#leftPanel').getByRole("link", { name: "Bill Pay" });
-	this.accountHistoryLink = page.locator('#leftPanel').getByRole("link", { name: "Account History" });
-	this.transferFundsOnlineLink = page.locator('#leftPanel').getByRole("link", { name: "Transfer Funds" });
-		
-		// Latest News section
-		this.parabankReopenedLink = page.getByRole("link", { name: "ParaBank Is Now Re-Opened" });
-		this.onlineBillPayNewsLink = page.getByRole("link", { name: "New! Online Bill Pay" });
-		this.onlineAccountTransfersNewsLink = page.getByRole("link", { name: "New! Online Account Transfers" });
+		// Success page elements
+		this.paymentCompleteHeading = page.locator('h1:has-text("Bill Payment Complete")');
+		this.paymentAmount = page.locator('span#amount');
 		
 		// Footer elements
 		this.footerHomeLink = page.getByRole("link", { name: "Home", exact: true });
@@ -108,35 +112,63 @@ export class HomePage {
 	}
 
 	/**
-	 * Navigate to the ParaBank homepage
+	 * Navigate to the Bill Pay page
 	 */
 	async goto(): Promise<void> {
-		await this.page.goto("/");
+		await this.page.goto("/billpay.htm");
 	}
 
 	/**
-	 * Perform login with username and password
-	 * @param username - The username to login with
-	 * @param password - The password to login with
+	 * Fill in complete payee information
+	 * @param payeeData - Object containing payee information
 	 */
-	async login(username: string, password: string): Promise<void> {
-		await this.usernameField.fill(username);
-		await this.passwordField.fill(password);
-		await this.loginButton.click();
+	async fillPayeeInformation(payeeData: {
+		name: string;
+		address: string;
+		city: string;
+		state: string;
+		zipCode: string;
+		phone: string;
+		accountNumber: string;
+	}): Promise<void> {
+		await this.payeeNameField.fill(payeeData.name);
+		await this.payeeAddressField.fill(payeeData.address);
+		await this.payeeCityField.fill(payeeData.city);
+		await this.payeeStateField.fill(payeeData.state);
+		await this.payeeZipCodeField.fill(payeeData.zipCode);
+		await this.payeePhoneField.fill(payeeData.phone);
+		await this.payeeAccountNumberField.fill(payeeData.accountNumber);
+		await this.verifyAccountField.fill(payeeData.accountNumber);
 	}
 
 	/**
-	 * Navigate to the registration page
+	 * Complete the bill payment process
+	 * @param payeeData - Payee information
+	 * @param amount - Amount to pay
+	 * @param fromAccountId - Optional account ID to pay from (defaults to first account)
 	 */
-	async goToRegister(): Promise<void> {
-		await this.registerLink.click();
-	}
-
-	/**
-	 * Navigate to the forgot login info page
-	 */
-	async goToForgotLoginInfo(): Promise<void> {
-		await this.forgotLoginInfoLink.click();
+	async submitPayment(payeeData: {
+		name: string;
+		address: string;
+		city: string;
+		state: string;
+		zipCode: string;
+		phone: string;
+		accountNumber: string;
+	}, amount: string, fromAccountId?: string): Promise<void> {
+		await this.fillPayeeInformation(payeeData);
+		await this.amountField.fill(amount);
+		
+		// Wait for accounts to load
+		await this.page.waitForTimeout(500);
+		
+		// Select from account if specified
+		if (fromAccountId) {
+			await this.fromAccountDropdown.selectOption(fromAccountId);
+		}
+		
+		await this.sendPaymentButton.click();
+		await this.page.waitForLoadState('networkidle', { timeout: 10000 });
 	}
 
 	/**
@@ -166,11 +198,5 @@ export class HomePage {
 	async clickLogo(): Promise<void> {
 		await this.parabankLogo.click();
 	}
-
-	/**
-	 * Navigate to admin page
-	 */
-	async goToAdminPage(): Promise<void> {
-		await this.adminPageLink.click();
-	}
 }
+

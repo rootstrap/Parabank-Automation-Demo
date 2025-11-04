@@ -5,3 +5,4 @@ export { ServicesPage } from './servicesPage';
 export { ContactPage } from './contactPage';
 export { LookupPage } from './lookupPage';
 export { ErrorPage } from './errorPage';
+export { BillPayPage } from './billPayPage';

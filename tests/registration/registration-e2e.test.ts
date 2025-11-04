@@ -1,4 +1,4 @@
-import { test, expect, createTestUser, waitForLoginSuccess, waitForLogoutSuccess, waitForRegistrationSuccess, cleanupTestData, loggedInUser } from '../../fixtures/parabank-fixtures';
+import { test, expect, createTestUser, waitForLoginSuccess, waitForLogoutSuccess, waitForRegistrationSuccess } from '../../fixtures/parabank-fixtures';
 import { UserCredentials } from '../../src/data/user-credentials';
 
 /**
@@ -8,32 +8,26 @@ import { UserCredentials } from '../../src/data/user-credentials';
  * 1. User Sign Up - Complete registration using a unique username
  * 2. User Logout - Perform a log out from the user created in scenario 1
  * 3. User Login - Perform a log in with user created in scenario 1
- * 4-6: Additional scenarios that can run independently (using loggedInUser fixture)
+ * 4-6: Additional scenarios that run sequentially with the same user created in scenario 1
  * 
  * This test uses the custom fixtures defined in parabank-fixtures.ts
  * which provide page objects via dependency injection.
+ * All scenarios run with a single shared user in the same browser session.
  */
-
-/**
- * Extended test fixture for scenarios 4-6
- * These scenarios need a logged-in user and run independently
- */
-const testWithLoggedInUser = loggedInUser.extend({});
 
 test.describe('Registration Scenarios E2E', () => {
+	// Shared user will be created once and reused across all scenarios
 	let testUser: UserCredentials;
 
-	test.beforeEach(async ({ page }) => {
-		// Generate unique user credentials for each test run
+	test.beforeAll(async () => {
+		// Create shared user once for all scenarios
 		testUser = createTestUser();
-		
-		// Clean up any previous test data
-		await cleanupTestData(page);
+		console.log(`🎯 Using shared user for all scenarios: ${testUser.username}`);
 	});
 
-	test.afterEach(async ({ page }) => {
-		// Clean up test data after each test
-		await cleanupTestData(page);
+	test.afterAll(async ({ page }) => {
+		// Optional: Clean up after all tests complete
+		// For a true E2E flow, we might want to keep the user, but cleanup is good practice
 	});
 
 	test('Complete registration journey: Signup → Logout → Login', async ({ 
@@ -121,14 +115,23 @@ test.describe('Registration Scenarios E2E', () => {
 		await expect(page.locator('text=Log Out')).toBeVisible();
 	});
 
-	testWithLoggedInUser('Scenario 4: Open New Account (runs independently)', async ({ 
+	test('Scenario 4: Open New Account (runs independently)', async ({ 
 		page,
-		loggedInUser
+		homePage
 	}) => {
 		console.log('🚀 Running Scenario 4: Open New Account');
 
-		// User is already logged in via the loggedInUser fixture
-		console.log(`✅ User ${loggedInUser.userCredentials.username} is logged in via fixture`);
+		// Ensure we're logged in with the shared user from scenario 1-3
+		// User should already be logged in from scenario 3, but verify and log in if needed
+		await homePage.goto();
+		const isLoggedIn = await page.locator('text=Account Services').isVisible({ timeout: 2000 }).catch(() => false);
+		if (!isLoggedIn) {
+			console.log(`🔐 Logging in with shared user: ${testUser.username}`);
+			await homePage.login(testUser.username, testUser.password);
+			await waitForLoginSuccess(page);
+		} else {
+			console.log(`✅ Already logged in with shared user: ${testUser.username}`);
+		}
 		
 		// ========================================
 		// SCENARIO 4: OPEN NEW ACCOUNT
@@ -163,14 +166,23 @@ test.describe('Registration Scenarios E2E', () => {
 		console.log('🎉 Scenario 4 Successfully Executed!');
 	});
 
-	testWithLoggedInUser('Scenario 5: Transfer Funds (runs independently)', async ({ 
+	test('Scenario 5: Transfer Funds (runs independently)', async ({ 
 		page,
-		loggedInUser
+		homePage
 	}) => {
 		console.log('🚀 Running Scenario 5: Transfer Funds');
 
-		// User is already logged in via the loggedInUser fixture
-		console.log(`✅ User ${loggedInUser.userCredentials.username} is logged in via fixture`);
+		// Ensure we're logged in with the shared user from scenario 1-3
+		// User should already be logged in from previous scenarios
+		await homePage.goto();
+		const isLoggedIn = await page.locator('text=Account Services').isVisible({ timeout: 2000 }).catch(() => false);
+		if (!isLoggedIn) {
+			console.log(`🔐 Logging in with shared user: ${testUser.username}`);
+			await homePage.login(testUser.username, testUser.password);
+			await waitForLoginSuccess(page);
+		} else {
+			console.log(`✅ Already logged in with shared user: ${testUser.username}`);
+		}
 
 		// First, open a new account for the transfer (Scenario 4 prerequisite)
 		console.log('📝 Prerequisite: Opening a new savings account...');
@@ -273,14 +285,46 @@ test.describe('Registration Scenarios E2E', () => {
 		console.log('🎉 Scenario 5 Successfully Executed!');
 	});
 
-	testWithLoggedInUser('Scenario 6: Bill Pay (runs independently)', async ({ 
+	test('Scenario 6: Bill Pay (runs independently)', async ({ 
 		page,
-		loggedInUser
+		billPayPage,
+		homePage,
+		registerPage
 	}) => {
 		console.log('🚀 Running Scenario 6: Bill Pay');
 
-		// User is already logged in via the loggedInUser fixture
-		console.log(`✅ User ${loggedInUser.userCredentials.username} is logged in via fixture`);
+		// Ensure we're logged in with the shared user from scenario 1-3
+		// User should already be logged in from previous scenarios
+		await homePage.goto();
+		const isLoggedIn = await page.locator('text=Account Services').isVisible({ timeout: 2000 }).catch(() => false);
+		
+		if (!isLoggedIn) {
+			// Check if we need to register the user first (if running independently)
+			const currentUrl = page.url();
+			const isOnLoginPage = currentUrl.includes('login') || currentUrl.includes('index');
+			if (isOnLoginPage) {
+				// Try to login first
+				console.log(`🔐 Attempting to login with shared user: ${testUser.username}`);
+				await homePage.login(testUser.username, testUser.password);
+				
+				// Wait a moment and check if login was successful (not on login page)
+				await page.waitForTimeout(1000);
+				const stillOnLoginPage = page.url().includes('login');
+				if (stillOnLoginPage) {
+					// Login failed, user might not be registered - register first
+					console.log(`📝 User not found, registering: ${testUser.username}`);
+					await homePage.goToRegister();
+					await registerPage.register(testUser);
+					await waitForRegistrationSuccess(page);
+					console.log(`✅ User registered and logged in: ${testUser.username}`);
+				} else {
+					await waitForLoginSuccess(page);
+					console.log(`✅ Login successful: ${testUser.username}`);
+				}
+			}
+		} else {
+			console.log(`✅ Already logged in with shared user: ${testUser.username}`);
+		}
 		
 		// ========================================
 		// SCENARIO 6: BILL PAY
@@ -288,59 +332,31 @@ test.describe('Registration Scenarios E2E', () => {
 		console.log('🚀 Starting Scenario 6: Bill Pay');
 		
 		// When: User clicks "Bill Pay" option from Account Services
-		const billPayLink = page.getByRole('link', { name: /bill pay/i }).first();
-		await billPayLink.click();
+		await homePage.billPayLink.click();
 		
 		// Verify we're on the Bill Pay page
 		await expect(page).toHaveURL(/billpay\.htm/);
-		await expect(page.getByRole('heading', { name: 'Bill Payment Service' })).toBeVisible();
+		await expect(billPayPage.pageTitle).toBeVisible();
 
-		// And: Fill in payee information
-		const payeeName = page.locator('input[name="payee.name"]');
-		await payeeName.fill('Test Utility Company');
+		// And: Fill in payee information and submit payment
+		const payeeData = {
+			name: 'Test Utility Company',
+			address: '123 Billing Street',
+			city: 'Billing City',
+			state: 'CA',
+			zipCode: '12345',
+			phone: '555-987-6543',
+			accountNumber: '99999'
+		};
 		
-		const payeeAddress = page.locator('input[name="payee.address.street"]');
-		await payeeAddress.fill('123 Billing Street');
-		
-		const payeeCity = page.locator('input[name="payee.address.city"]');
-		await payeeCity.fill('Billing City');
-		
-		const payeeState = page.locator('input[name="payee.address.state"]');
-		await payeeState.fill('CA');
-		
-		const payeeZipCode = page.locator('input[name="payee.address.zipCode"]');
-		await payeeZipCode.fill('12345');
-		
-		const payeePhone = page.locator('input[name="payee.phoneNumber"]');
-		await payeePhone.fill('555-987-6543');
-		
-		const payeeAccountNumber = page.locator('input[name="payee.accountNumber"]');
-		await payeeAccountNumber.fill('99999');
-		
-		const verifyAccountNumber = page.locator('input[name="verifyAccount"]');
-		await verifyAccountNumber.fill('99999');
-
-		// And: Enter amount to pay and select the account to pay from
-		const billPayAmount = page.locator('input[name="amount"]');
-		await billPayAmount.fill('50');
-		
-		await page.waitForTimeout(500); // Wait for accounts to load
-		
-		// Click Send Payment button
-		const sendPaymentButton = page.locator('input[value="Send Payment"]');
-		await sendPaymentButton.click();
-		
-		// Wait for payment to complete
-		await page.waitForLoadState('networkidle', { timeout: 10000 });
+		await billPayPage.submitPayment(payeeData, '50');
 		
 		// Then: Verify payment was successful by searching "Bill Payment Complete" message
-		const billPaymentCompleteHeading = page.locator('h1:has-text("Bill Payment Complete")');
-		await expect(billPaymentCompleteHeading).toBeVisible({ timeout: 10000 });
+		await expect(billPayPage.paymentCompleteHeading).toBeVisible({ timeout: 10000 });
 		console.log('✅ Scenario 6 Complete: Bill payment successful');
 		
 		// Additional verification - check payment amount
-		const paymentAmount = page.locator('span#amount');
-		await expect(paymentAmount).toContainText('50');
+		await expect(billPayPage.paymentAmount).toContainText('50');
 		console.log('✅ Verified: Bill payment of $50 was processed');
 		
 		console.log('🎉 Scenario 6 Successfully Executed!');
